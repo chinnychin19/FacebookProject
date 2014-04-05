@@ -2,8 +2,8 @@ from snap import *
 
 G = TUNGraph.New()
 
-def loadGraph(filename):
-  root = int(filename[filename.find('/')+1:filename.find('.')])
+def loadGraph(root):
+  filename = "../data/%d.edges"%root
   G.AddNode(root)
   lines = open(filename).read().split('\n')[0:-1]
   for line in lines:
@@ -24,4 +24,5 @@ def loadGraph(filename):
       G.AddEdge(root, nodeB)
 
 
-loadGraph('data/0.edges')
+if __name__ == '__main__':
+  loadGraph(0)
