@@ -6,6 +6,12 @@ def get_friends(G, nodeId):
   snap.GetNodesAtHop(G, nodeId, 1, NodeVec, False)
   return NodeVec
 
+def get_adjacency_map(G):
+  adjacency_map = {}
+  for node in G.Nodes():
+    adjacency_map[node.GetId()] = get_friends(G, node.GetId())
+  return adjacency_map
+
 if __name__ == '__main__':
   g = loadGraph(0)
   friends = get_friends(g, 24)
@@ -13,3 +19,5 @@ if __name__ == '__main__':
     print node
   print "total: %d" % len(friends)
 
+  adj_map = get_adjacency_map(g)
+  print len(adj_map[24])
