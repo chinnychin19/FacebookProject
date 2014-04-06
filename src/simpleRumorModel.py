@@ -5,6 +5,7 @@ import scipy
 from scipy import random
 import heapq
 from load import *
+from lib import *
 
 # model constructor
 class simpleRumorModel():
@@ -20,6 +21,17 @@ class simpleRumorModel():
 
     self.N = S+I
     self.graph = graph
+    self.adjacencyMap = get_adjacency_map(graph)
+
+    #going to use this to store the *indices* of agents in each state
+    self.sAgentList = []
+    self.iAgentList = []
+    self.rAgentList = []
+    #here we're going to store the counts of how many agents are in each
+    #state @ each time step
+    self.sList = []
+    self.iList = []
+    self.rList = []
 
 if __name__ == '__main__':
   #transmission parameters (daily rates scaled to hourly rates)
