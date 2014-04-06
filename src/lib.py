@@ -12,6 +12,12 @@ def get_adjacency_map(G):
     adjacency_map[node.GetId()] = get_friends(G, node.GetId())
   return adjacency_map
 
+def get_node_ids(G):
+  return map(nodeId, G.Nodes())
+
+
+def nodeId(node):
+  return node.GetId()
 if __name__ == '__main__':
   g = loadGraph(0)
   friends = get_friends(g, 24)
