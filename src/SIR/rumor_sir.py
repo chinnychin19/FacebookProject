@@ -50,6 +50,6 @@ pl.ylabel('Ignorants and Stiflers')
 pl.subplot(212)
 pl.plot(RES[:,1], '-r', label='Spreaders')
 pl.xlabel('Time')
-pl.ylabel('Infectious')
+pl.ylabel('Spreaders')
 pl.savefig('rumor-sir.png')
 
