@@ -175,6 +175,7 @@ def prompt_user():
   d['spreadChance'] = float(raw_input("Enter Spread Chance: ") or defaults()['spreadChance'])
   d['stifleChance'] = float(raw_input("Enter Stifle Chance: ") or defaults()['stifleChance'])
   d['numSpreaders'] = int(raw_input("Enter Number of Spreaders: ") or defaults()['numSpreaders'])
+  d['useContactFractionFunction'] = False if raw_input("Have K Vary by Time Of Day? (y/n): ") == 'n' else True
   d['contactFraction'] = float(raw_input("Enter Contact Fraction: ") or defaults()['contactFraction'])
   d['spontaneousStifleChance'] = float(raw_input("Enter Spontaneous Stifle Chance: ") or defaults()['spontaneousStifleChance'])
   return d
@@ -186,7 +187,8 @@ if __name__ == '__main__':
   # N = graph.GetNodes()
   #initial conditions (# of people in each state)
   model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], 
-    params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'])
+    params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'],
+    params['useContactFractionFunction'])
   model.displayCounts()
   while True:
     model.run()
