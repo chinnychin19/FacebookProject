@@ -121,11 +121,11 @@ class SimpleRumorModel():
 
 def defaults():
   return {
-  "graph": 0, 
-  "spreadChance": 0.1, 
-  "stifleChance": 0.01, 
-  "numSpreaders": 5, 
-  "contactFraction" : 0.3, 
+  "graph": 0,
+  "spreadChance": 0.1,
+  "stifleChance": 0.01,
+  "numSpreaders": 5,
+  "contactFraction" : 0.3,
   "spontaneousStifleChance" : 0.1
   }
 
