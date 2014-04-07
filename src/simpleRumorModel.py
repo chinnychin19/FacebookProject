@@ -17,12 +17,14 @@ class SimpleRumorModel():
   # and someone with 500 friends interacts with all 500 every day, he has an 
   # unreasonably high chance of being stifled
 
-  def __init__(self, graph, spreadChance=0.1, stifleChance=0.01, numSpreaders=5, contactFraction=0.1, spontaneousStifleChance=0.1):
+  def __init__(self, graph, spreadChance=0.1, stifleChance=0.01, numSpreaders=5, contactFraction=0.1, spontaneousStifleChance=0.1,
+    useContactFractionFunction=True):
     # parameters
     self.spreadChance = spreadChance
     self.stifleChance = stifleChance
     self.contactFraction = contactFraction
     self.spontaneousStifleChance = spontaneousStifleChance
+    self.useContactFractionFunction = useContactFractionFunction
     self.t = 0
 
     self.graph = graph
@@ -62,6 +64,38 @@ class SimpleRumorModel():
     for i in iterable:
       count+=1
     return count
+
+  def getContactFraction(self):
+    if not self.useContactFractionFunction: return self.contactFraction
+    unit = self.contactFraction
+    hour = self.t % 24 # 0 is noon
+    fractions = {
+    "0" : .5,
+    "1" : .4,
+    "2" : .3,
+    "3" : .27,
+    "4" : .27,
+    "5" : .3,
+    "6" : .4,
+    "7" : .5,
+    "8" : .8,
+    "9" : 1.2,
+    "10" : 1.6,
+    "11" : 1.7,
+    "12" : 1.7,
+    "13" : 1.75,
+    "14" : 1.77,
+    "15" : 1.8,
+    "16" : 1.7,
+    "17" : 1.6,
+    "18" : 1.5,
+    "19" : 1.5,
+    "20" : 1.4,
+    "21" : 1.25,
+    "22" : 1.0,
+    "23" : 0.7
+    }
+    return unit * fractions[hour]
 
   def doSpontaneousStifle(self, spreader):
     if random.random() < self.spontaneousStifleChance:
@@ -125,11 +159,10 @@ def defaults():
   "spreadChance": 0.1,
   "stifleChance": 0.01,
   "numSpreaders": 5,
-  "contactFraction" : 0.3,
+  "contactFraction" : 0.1,
   "spontaneousStifleChance" : 0.1
   }
 
-  #def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5):
 def check_default():
   args = sys.argv[1:]
   if args and args[0] == '-d':
