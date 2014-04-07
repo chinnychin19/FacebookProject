@@ -16,10 +16,11 @@ class SimpleRumorModel():
   # and someone with 500 friends interacts with all 500 every day, he has an 
   # unreasonably high chance of being stifled
 
-  def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=20):
+  def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5, contactFraction=0.1):
     # parameters
     self.spreadChance = spreadChance
     self.stifleChance = stifleChance
+    self.contactFraction = contactFraction
     self.t = 0
 
     self.graph = graph
@@ -70,15 +71,24 @@ class SimpleRumorModel():
 
   def doSpread(self, spreader): # returns number of friends infected by this call
     count = 0
-    for friend in self.adjacencyMap[spreader]:
+    for friend in self.getContactedFriends(spreader):
       if self.isIgnorant(friend):
         if random.random() < self.spreadChance:
           self.infect(friend)
           count += 1
     return count
 
+  def getContactedFriends(self, node): # is a generator
+    friends = self.adjacencyMap[node]
+    random.shuffle(friends)
+    num = int(self.contactFraction * self.size(friends))
+    count = 0
+    for friend in friends:
+      if count == num: return
+      yield friend
+
   def beStifled(self, spreader):
-    for friend in self.adjacencyMap[spreader]:
+    for friend in self.getContactedFriends(spreader):
       if self.isSpreader(friend) or self.isStifler:
         if random.random() < self.stifleChance:
           self.recover(spreader) # spreader becomes a stifler
@@ -104,7 +114,7 @@ class SimpleRumorModel():
 
 
 if __name__ == '__main__':
-  graph = loadGraph(0)
+  graph = loadGraph(414)
   # N = graph.GetNodes()
   #initial conditions (# of people in each state)
   model = SimpleRumorModel(graph)
