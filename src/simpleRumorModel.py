@@ -6,6 +6,7 @@ import copy
 #import heapq
 from load import *
 from lib import *
+import sys
 
 # model constructor
 class SimpleRumorModel():
@@ -16,7 +17,7 @@ class SimpleRumorModel():
   # and someone with 500 friends interacts with all 500 every day, he has an 
   # unreasonably high chance of being stifled
 
-  def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=20):
+  def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5):
     # parameters
     self.spreadChance = spreadChance
     self.stifleChance = stifleChance
@@ -102,12 +103,29 @@ class SimpleRumorModel():
 
 
 
+def defaults():
+  return {"graph": 0, "spreadChance": 0.1, "stifleChance": 0.005, "numSpreaders": 5}
 
+  #def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5):
+def check_default():
+  args = sys.argv[1:]
+  if args and args[0] == '-d':
+    return True
+  return False
+
+def prompt_user():
+  d = {}
+  d['graph'] = int(raw_input("Enter Graph Number (default=0): ") or defaults()['graph'])
+  d['spreadChance'] = float(raw_input("Enter Spread Chance (default=0.1): ") or defaults()['spreadChance'])
+  d['stifleChance'] = float(raw_input("Enter Stifle Chance (default=0.005): ") or defaults()['stifleChance'])
+  d['numSpreaders'] = int(raw_input("Enter Number of Spreaders (default=5): ") or defaults()['numSpreaders'])
+  return d
 if __name__ == '__main__':
-  graph = loadGraph(0)
+  params = defaults() if check_default() else  prompt_user()
+  graph = loadGraph(params['graph'])
   # N = graph.GetNodes()
   #initial conditions (# of people in each state)
-  model = SimpleRumorModel(graph)
+  model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], params['numSpreaders'])
   model.displayCounts()
   while True:
     model.run()
