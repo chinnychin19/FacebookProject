@@ -17,11 +17,12 @@ class SimpleRumorModel():
   # and someone with 500 friends interacts with all 500 every day, he has an 
   # unreasonably high chance of being stifled
 
-  def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5, contactFraction=0.1):
+  def __init__(self, graph, spreadChance=0.1, stifleChance=0.01, numSpreaders=5, contactFraction=0.1, spontaneousStifleChance=0.1):
     # parameters
     self.spreadChance = spreadChance
     self.stifleChance = stifleChance
     self.contactFraction = contactFraction
+    self.spontaneousStifleChance = spontaneousStifleChance
     self.t = 0
 
     self.graph = graph
@@ -45,6 +46,7 @@ class SimpleRumorModel():
     for spreader in self.spreaderSet:
       self.doSpread(spreader)  # a spreader does spread to ignorants
       self.beStifled(spreader) # a spreader is stifled by stiflers and other spreaders
+      self.doSpontaneousStifle(spreader) # a spreader will spontaneously decide to be a stifler with some probability
     self.commitTempSets()
 
   def displayCounts(self):
@@ -60,6 +62,10 @@ class SimpleRumorModel():
     for i in iterable:
       count+=1
     return count
+
+  def doSpontaneousStifle(self, spreader):
+    if random.random() < self.spontaneousStifleChance:
+      self.recover(spreader)
 
   # takes all temp changes and commits them to permanent sets
   def commitTempSets(self):
@@ -114,7 +120,14 @@ class SimpleRumorModel():
 
 
 def defaults():
-  return {"graph": 0, "spreadChance": 0.1, "stifleChance": 0.01, "numSpreaders": 5, "contactFraction" : 0.3}
+  return {
+  "graph": 0, 
+  "spreadChance": 0.1, 
+  "stifleChance": 0.01, 
+  "numSpreaders": 5, 
+  "contactFraction" : 0.3, 
+  "spontaneousStifleChance" : 0.1
+  }
 
   #def __init__(self, graph, spreadChance=0.1, stifleChance=0.005, numSpreaders=5):
 def check_default():
@@ -130,6 +143,7 @@ def prompt_user():
   d['stifleChance'] = float(raw_input("Enter Stifle Chance: ") or defaults()['stifleChance'])
   d['numSpreaders'] = int(raw_input("Enter Number of Spreaders: ") or defaults()['numSpreaders'])
   d['contactFraction'] = float(raw_input("Enter Contact Fraction: ") or defaults()['contactFraction'])
+  d['spontaneousStifleChance'] = float(raw_input("Enter Spontaneous Stifle Chance: ") or defaults()['spontaneousStifleChance'])
   return d
 
 
@@ -138,7 +152,8 @@ if __name__ == '__main__':
   graph = loadGraph(params['graph'])
   # N = graph.GetNodes()
   #initial conditions (# of people in each state)
-  model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], params['numSpreaders'], params['contactFraction'])
+  model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], 
+    params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'])
   model.displayCounts()
   while True:
     model.run()
