@@ -53,10 +53,19 @@ class SimpleRumorModel():
 
   def displayCounts(self):
     print "Time =",self.t
-    print "Num ignorants:",self.size(self.ignorantSet)
-    print "Num spreaders:",self.size(self.spreaderSet)
-    print "Num stiflers:",self.size(self.stiflerSet)
+    print "Num ignorants:",self.numIgnorants()
+    print "Num spreaders:",self.numSpreaders()
+    print "Num stiflers:",self.numStiflers()
     print ""
+
+  def numIgnorants(self):
+    return self.size(self.ignorantSet)
+
+  def numSpreaders(self):
+    return self.size(self.spreaderSet)
+
+  def numStiflers(self):
+    return self.size(self.stiflerSet)
 
   # weird bug: lists and sets are overwritten by snap.py and don't have the len() function
   def size(self, iterable):
@@ -160,7 +169,8 @@ def defaults():
   "stifleChance": 0.01,
   "numSpreaders": 5,
   "contactFraction" : 0.1,
-  "spontaneousStifleChance" : 0.1
+  "spontaneousStifleChance" : 0.1,
+  "useContactFractionFunction" : True
   }
 
 def check_default():
@@ -190,7 +200,10 @@ if __name__ == '__main__':
     params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'],
     params['useContactFractionFunction'])
   model.displayCounts()
-  while True:
+
+  minIterations = 5
+  maxIterations = 1000
+  while model.t < minIterations or (model.numSpreaders() > 0 and model.t < maxIterations):
     model.run()
     model.displayCounts()
-    pause = raw_input("hit any key to keep going... CTRL+C to quit")
+    # pause = raw_input("hit any key to keep going... CTRL+C to quit")
