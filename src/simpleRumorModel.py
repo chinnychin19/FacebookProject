@@ -1,13 +1,18 @@
+import matplotlib as mpl
+mpl.use('Agg')
+font = {'size' : 10}
+mpl.rc('font', **font)
+
 import random
 import copy
-#import pylab as pl
+import pylab as pl
 #import scipy
 #from scipy import random
 #import heapq
 from load import *
 from lib import *
 import sys
-
+import re
 # model constructor
 class SimpleRumorModel():
   # k is built in to the spread chance and stifle chance because this model assumes
@@ -173,6 +178,12 @@ def defaults():
   "useContactFractionFunction" : True
   }
 
+def params_to_string(params):
+  return "g: "+str(params["graph"]) + ", SpCh: "+ str(params["spreadChance"]) + \
+  ", StCh: "+ str(params["stifleChance"]) + ", #Sp: "+ str(params['numSpreaders']) + \
+  ", CF: "+ str(params["contactFraction"]) + ", SSC: "+ str(params["spontaneousStifleChance"]) + \
+  ", UCFF: " + str(params['useContactFractionFunction'])
+
 def check_default():
   args = sys.argv[1:]
   if args and args[0] == '-d':
@@ -199,11 +210,44 @@ if __name__ == '__main__':
   model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], 
     params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'],
     params['useContactFractionFunction'])
-  model.displayCounts()
+  #model.displayCounts()
 
   minIterations = 5
   maxIterations = 1000
+  numSp = []
+  numIg = []
+  numSt = []
+  time = []
+
+  numSp.append(model.numSpreaders())
+  numIg.append(model.numIgnorants())
+  numSt.append(model.numStiflers())
+
   while model.t < minIterations or (model.numSpreaders() > 0 and model.t < maxIterations):
     model.run()
-    model.displayCounts()
+    #model.displayCounts()
+    numSp.append(model.numSpreaders())
+    numIg.append(model.numIgnorants())
+    numSt.append(model.numStiflers())
     # pause = raw_input("hit any key to keep going... CTRL+C to quit")
+  time = range(model.t)
+  #print numSp
+  #print numIg
+  #print numSt
+
+  title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
+  title = params_to_string(params)
+  filename = "img/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
+  pl.subplot(211)
+  pl.plot(numIg, '-g', label='Ignorants')
+  pl.plot(numSt, '-k', label='Stiflers')
+  pl.legend(loc=0)
+  pl.title(title)
+  pl.xlabel('Time')
+  pl.ylabel('Ignorants and Stiflers')
+  pl.subplot(212)
+  pl.plot(numSp, '-r', label='Spreaders')
+  pl.xlabel('Time')
+  pl.ylabel('Spreaders')
+  pl.savefig(filename)
+
