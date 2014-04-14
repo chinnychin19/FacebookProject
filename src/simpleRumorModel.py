@@ -22,7 +22,7 @@ class SimpleRumorModel():
   # and someone with 500 friends interacts with all 500 every day, he has an 
   # unreasonably high chance of being stifled
 
-  def __init__(self, graph, spreadChance=0.1, stifleChance=0.01, numSpreaders=5, contactFraction=0.1, spontaneousStifleChance=0.1,
+  def __init__(self, graph, spreadChance, stifleChance, numSpreaders, contactFraction, spontaneousStifleChance,
     useContactFractionFunction=True):
     # parameters
     self.spreadChance = spreadChance
@@ -206,51 +206,73 @@ def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
   #params = defaults() if check_default() else  prompt_user()
   graph = loadGraph(g)
 
-  print average_neighbors(graph)
   N = graph.GetNodes()
-  model = SimpleRumorModel(graph, spch, stch, nsp, cf, ssc, ucff)
-  #model.displayCounts()
-  minIterations = 5
-  maxIterations = 1000
-  numSp = []
-  numIg = []
-  numSt = []
-  time = []
 
-  numSp.append(model.numSpreaders())
-  numIg.append(model.numIgnorants())
-  numSt.append(model.numStiflers())
-
-  while model.t < minIterations or (model.numSpreaders() > 0 and model.t < maxIterations):
-    model.run()
+  avgSp = [0] * 100
+  avgIg = [0] * 100
+  avgSt = [0] * 100
+  numRuns = 0
+  while numRuns < 10:
+    model = SimpleRumorModel(graph, spch, stch, nsp, cf, ssc, ucff)
     #model.displayCounts()
+    minIterations = 5
+    maxIterations = 48
+    numSp = []
+    numIg = []
+    numSt = []
+    time = []
+
     numSp.append(model.numSpreaders())
     numIg.append(model.numIgnorants())
     numSt.append(model.numStiflers())
-    # pause = raw_input("hit any key to keep going... CTRL+C to quit")
-  time = range(model.t)
+
+    while(model.t < maxIterations):
+      model.run()
+      #model.displayCounts()
+      numSp.append(model.numSpreaders())
+      numIg.append(model.numIgnorants())
+      numSt.append(model.numStiflers())
+      # pause = raw_input("hit any key to keep going... CTRL+C to quit")
+    for x in xrange(maxIterations):
+      avgSp[x] = avgSp[x] + numSp[x]
+      avgIg[x] = avgIg[x] + numIg[x]
+      avgSt[x] = avgSt[x] + numSt[x]
+    numRuns+=1
+  for x in xrange(maxIterations):
+    avgSp[x] = avgSp[x] / float(numRuns)
+    avgIg[x] = avgIg[x] / float(numRuns)
+    avgSt[x] = avgSt[x] / float(numRuns)
+
   #print numSp
   #print numIg
   #print numSt
 
   
   #title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
-  title = "g=%d, SpCh=%0.2f, StCh=%0.2f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(g, spch ,stch, nsp, cf, ssc )
+  title = "g=%d, SpCh=%0.2f, StCh=%0.3f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(g, spch ,stch, nsp, cf, ssc )
 
   filename = "img/"+ str(g)+"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
   #filename = "img/tmp" +"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
+  percIg = map(lambda x: x * 100.0 / float(N), avgIg)
+  percSt = map(lambda x: x * 100.0 / float(N), avgSt)
+  percSp = map(lambda x: x * 100.0 / float(N), avgSp)
 
   pl.subplot(311)
-  pl.plot(numIg, '-g', label='Ignorants')
-  pl.plot(numSt, '-k', label='Stiflers')
+  pl.plot(percIg, '-g', label='% Ignorants')
+  pl.plot(percSt, '-k', label='% Stiflers')
   pl.legend(loc=0)
   pl.title(title)
-  pl.xlabel('Time')
-  pl.ylabel('Ignorants and Stiflers')
+  pl.ylabel('% Ignorants and Stiflers')
+  pl.ylim([0,100])
+  pl.xlim([0,47])
+  pl.xticks(range(0,47,6))
+
   pl.subplot(312)
-  pl.plot(numSp, '-r', label='Spreaders')
-  pl.xlabel('Time')
-  pl.ylabel('Spreaders')
+  pl.plot(percSp, '-r', label='Spreaders')
+  pl.ylabel('% Spreaders')
+  pl.ylim([0,100])
+  pl.xlim([0,47])
+  pl.xticks(range(0,47,6))
 
   pl.subplot(313)
   percent_yield = [100*(sp+st)/float(model.N) for sp,st in zip(numSp, numSt)]
@@ -258,10 +280,14 @@ def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
   pl.xlabel('Time')
   pl.ylabel('Non-Ignorant %')
   pl.ylim([0,100])
+  pl.xlim([0,47])
+  pl.xticks(range(0,47,6))
+
   #pl.yticks(range(0,101,5))
 
   pl.savefig(filename)
-
+  print "PEAK: %0.2f" % max(percSp)
+  print "percent yield : %0.2f" % percent_yield[-1]
 if __name__ == '__main__':
   #possibleGraphs = map(int, ("0  107  1684  1912  3437  348  3980  414  686  698".split("  ")))
   possibleGraphs = [698,1912, 3437]
