@@ -290,11 +290,11 @@ def doModel(g, spch, stch, nsp, cf, ssc, count):
   print "percent yield : %0.2f" % percent_yield[-1]
 if __name__ == '__main__':
   #possibleGraphs = map(int, ("0  107  1684  1912  3437  348  3980  414  686  698".split("  ")))
-  possibleGraphs = [698,1912, 3437] # [0]
-  possibleSpCh = [.1,.5] # [.1, .50, 1]
-  possibleStCh = [.001, .1] # [.01, .1, .50 ]
-  possibleNumSp= [1,25]#[1,5,25]
-  possibleCF = [.05, .5]#[.01,.1,1.0]
+  possibleGraphs = [0]#[698,1912, 3437] # [0]
+  possibleSpCh = [.1, .50, 1] #[.1,.5] # [.1, .50, 1]
+  possibleStCh = [.01, .1, .50 ] #[.001, .1] # [.01, .1, .50 ]
+  possibleNumSp= [1,5,25]#[1,25]#[1,5,25]
+  possibleCF = [.01,.1,1.0]#[.05, .5]#[.01,.1,1.0]
   possibleSSF = [0, .2]#[0,.1,.5]
 
   count = 0
