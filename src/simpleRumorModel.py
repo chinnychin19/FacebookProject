@@ -202,16 +202,14 @@ def prompt_user():
   return d
 
 
-if __name__ == '__main__':
-  params = defaults() if check_default() else  prompt_user()
-  graph = loadGraph(params['graph'])
-  # N = graph.GetNodes()
-  #initial conditions (# of people in each state)
-  model = SimpleRumorModel(graph, params['spreadChance'], params['stifleChance'], 
-    params['numSpreaders'], params['contactFraction'], params['spontaneousStifleChance'],
-    params['useContactFractionFunction'])
-  #model.displayCounts()
+def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
+  #params = defaults() if check_default() else  prompt_user()
+  graph = loadGraph(g)
 
+  print average_neighbors(graph)
+  N = graph.GetNodes()
+  model = SimpleRumorModel(graph, spch, stch, nsp, cf, ssc, ucff)
+  #model.displayCounts()
   minIterations = 5
   maxIterations = 1000
   numSp = []
@@ -235,19 +233,52 @@ if __name__ == '__main__':
   #print numIg
   #print numSt
 
-  title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
-  title = params_to_string(params)
-  filename = "img/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
-  pl.subplot(211)
+  
+  #title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
+  title = "g=%d, SpCh=%0.2f, StCh=%0.2f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(g, spch ,stch, nsp, cf, ssc )
+
+  filename = "img/"+ str(g)+"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
+  #filename = "img/tmp" +"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
+
+  pl.subplot(311)
   pl.plot(numIg, '-g', label='Ignorants')
   pl.plot(numSt, '-k', label='Stiflers')
   pl.legend(loc=0)
   pl.title(title)
   pl.xlabel('Time')
   pl.ylabel('Ignorants and Stiflers')
-  pl.subplot(212)
+  pl.subplot(312)
   pl.plot(numSp, '-r', label='Spreaders')
   pl.xlabel('Time')
   pl.ylabel('Spreaders')
+
+  pl.subplot(313)
+  percent_yield = [100*(sp+st)/float(model.N) for sp,st in zip(numSp, numSt)]
+  pl.plot(percent_yield, '-r', label='Yield')
+  pl.xlabel('Time')
+  pl.ylabel('Non-Ignorant %')
+  pl.ylim([0,100])
+  #pl.yticks(range(0,101,5))
+
   pl.savefig(filename)
 
+if __name__ == '__main__':
+  #possibleGraphs = map(int, ("0  107  1684  1912  3437  348  3980  414  686  698".split("  ")))
+  possibleGraphs = [698,1912, 3437]
+  possibleSpCh = [.1,.5]
+  possibleStCh = [.001, .1]
+  possibleNumSp= [1,25]#[1,5,25]
+  possibleCF = [.05, .5]#[.01,.1,1.0]
+  possibleSSF = [0, .2]#[0,.1,.5]
+
+  count = 0
+  for g in possibleGraphs:
+    for spch in possibleSpCh:
+      for stch in possibleStCh:
+        for numsp in possibleNumSp:
+          for cf in possibleCF:
+            for ssf in possibleSSF:
+              count+=1
+              pl.figure(count)
+              print count
+              doModel(g,spch, stch, numsp, cf, ssf)

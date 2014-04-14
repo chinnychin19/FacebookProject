@@ -1,8 +1,9 @@
 from snap import *
 
-G = TUNGraph.New()
 
 def loadGraph(root):
+
+  G = TUNGraph.New()
   filename = "../data/%d.edges"%root
   G.AddNode(root)
   lines = open(filename).read().split('\n')[0:-1]
