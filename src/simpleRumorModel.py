@@ -82,7 +82,7 @@ class SimpleRumorModel():
   def getContactFraction(self):
     if not self.useContactFractionFunction: return self.contactFraction
     unit = self.contactFraction
-    hour = self.t % 24 # 0 is noon
+    hour = (self.t+12) % 24 # t=0 is noon
     fractions = {
     "0" : .5,
     "1" : .4,
@@ -109,7 +109,7 @@ class SimpleRumorModel():
     "22" : 1.0,
     "23" : 0.7
     }
-    return unit * fractions[hour]
+    return unit * fractions[str(hour)]
 
   def doSpontaneousStifle(self, spreader):
     if random.random() < self.spontaneousStifleChance:
@@ -136,7 +136,7 @@ class SimpleRumorModel():
   def getContactedFriends(self, node): # is a generator
     friends = self.adjacencyMap[node]
     random.shuffle(friends)
-    num = int(self.contactFraction * self.size(friends))
+    num = int(self.getContactFraction() * self.size(friends))
     count = 0
     for friend in friends:
       if count == num: return
@@ -202,7 +202,7 @@ def prompt_user():
   return d
 
 
-def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
+def doModel(g, spch, stch, nsp, cf, ssc, count):
   #params = defaults() if check_default() else  prompt_user()
   graph = loadGraph(g)
 
@@ -213,7 +213,7 @@ def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
   avgSt = [0] * 100
   numRuns = 0
   while numRuns < 10:
-    model = SimpleRumorModel(graph, spch, stch, nsp, cf, ssc, ucff)
+    model = SimpleRumorModel(graph, spch, stch, nsp, cf, ssc, True)
     #model.displayCounts()
     minIterations = 5
     maxIterations = 48
@@ -249,14 +249,14 @@ def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
 
   
   #title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
-  title = "g=%d, SpCh=%0.2f, StCh=%0.3f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(g, spch ,stch, nsp, cf, ssc )
+  title = "#%d, g=%d, SpCh=%0.2f, StCh=%0.3f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(count%32+1, g, spch ,stch, nsp, cf, ssc )
 
-  filename = "img/"+ str(g)+"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
+  filename = "imgtest/"+ str(g)+"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
   #filename = "img/tmp" +"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
   percIg = map(lambda x: x * 100.0 / float(N), avgIg)
   percSt = map(lambda x: x * 100.0 / float(N), avgSt)
   percSp = map(lambda x: x * 100.0 / float(N), avgSp)
-
+  pl.figtext(10,10, "test")
   pl.subplot(311)
   pl.plot(percIg, '-g', label='% Ignorants')
   pl.plot(percSt, '-k', label='% Stiflers')
@@ -290,9 +290,9 @@ def doModel(g, spch, stch, nsp, cf, ssc, ucff=True):
   print "percent yield : %0.2f" % percent_yield[-1]
 if __name__ == '__main__':
   #possibleGraphs = map(int, ("0  107  1684  1912  3437  348  3980  414  686  698".split("  ")))
-  possibleGraphs = [698,1912, 3437]
-  possibleSpCh = [.1,.5]
-  possibleStCh = [.001, .1]
+  possibleGraphs = [698,1912, 3437] # [0]
+  possibleSpCh = [.1,.5] # [.1, .50, 1]
+  possibleStCh = [.001, .1] # [.01, .1, .50 ]
   possibleNumSp= [1,25]#[1,5,25]
   possibleCF = [.05, .5]#[.01,.1,1.0]
   possibleSSF = [0, .2]#[0,.1,.5]
@@ -304,7 +304,7 @@ if __name__ == '__main__':
         for numsp in possibleNumSp:
           for cf in possibleCF:
             for ssf in possibleSSF:
-              count+=1
               pl.figure(count)
               print count
-              doModel(g,spch, stch, numsp, cf, ssf)
+              doModel(g,spch, stch, numsp, cf, ssf, count)
+              count+=1
