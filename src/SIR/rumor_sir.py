@@ -9,6 +9,9 @@
 
 import matplotlib as mpl
 mpl.use('Agg')
+font = {'size' : 10}
+mpl.rc('font', **font)
+
 import matplotlib.pyplot as plt
 import scipy.integrate as spi
 import numpy as np
@@ -39,12 +42,13 @@ RES = spi.odeint(diff_eqs,INPUT,t_range)
 
 print RES
 
+title = "Model 1 - lambda=%0.3f, alpha=%0.3f, k=%0.1f S0%%=%0.4f, I0%%=%0.4f" %(lambd, alpha, k, S0*100, I0*100)
 #Ploting
 pl.subplot(211)
 pl.plot(RES[:,0], '-g', label='Ignorants')
 pl.plot(RES[:,2], '-k', label='Stiflers')
 pl.legend(loc=0)
-pl.title('SIR')
+pl.title(title)
 pl.xlabel('Time')
 pl.ylabel('Ignorants and Stiflers')
 pl.subplot(212)

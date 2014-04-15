@@ -249,7 +249,7 @@ def doModel(g, spch, stch, nsp, cf, ssc, count):
 
   
   #title = "SIR - "+", ".join(list(str(key) + ": " + str(params[key]) for key in params))
-  title = "#%d, g=%d, SpCh=%0.2f, StCh=%0.3f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(count%32+1, g, spch ,stch, nsp, cf, ssc )
+  title = "#%d, g=%d, SpCh=%0.2f, StCh=%0.3f, NumSp=%d, CF=%0.2f, SSC=%0.2f" %(count+1, g, spch ,stch, nsp, cf, ssc )
 
   filename = "imgtest/"+ str(g)+"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
   #filename = "img/tmp" +"/"+ re.sub('[^0-9a-zA-Z\.]+', '_', title)+".png"
@@ -291,13 +291,13 @@ def doModel(g, spch, stch, nsp, cf, ssc, count):
 if __name__ == '__main__':
   #possibleGraphs = map(int, ("0  107  1684  1912  3437  348  3980  414  686  698".split("  ")))
   possibleGraphs = [0]#[698,1912, 3437] # [0]
-  possibleSpCh = [.1, .50, 1] #[.1,.5] # [.1, .50, 1]
-  possibleStCh = [.01, .1, .50 ] #[.001, .1] # [.01, .1, .50 ]
+  possibleSpCh = [1.0]#[.1, .50, 1] #[.1,.5] # [.1, .50, 1]
+  possibleStCh = [.5 ]#[.01, .1, .50 ] #[.001, .1] # [.01, .1, .50 ]
   possibleNumSp= [1,5,25]#[1,25]#[1,5,25]
   possibleCF = [.01,.1,1.0]#[.05, .5]#[.01,.1,1.0]
-  possibleSSF = [0, .2]#[0,.1,.5]
+  possibleSSF =[0,.1,.5] #[0, .2][0,.1,.5]
 
-  count = 0
+  count = 217
   for g in possibleGraphs:
     for spch in possibleSpCh:
       for stch in possibleStCh:
